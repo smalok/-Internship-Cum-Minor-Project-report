@@ -1,0 +1,58 @@
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Outlet,} 
+from "react-router-dom";
+import Signup from "./pages/Signup";
+import Login from "./pages/Login";
+import Cart from "./pages/cart";
+import Home from "./pages/Home";
+import ProtectedRoute from "./Components/ProtectedRoute";
+import Header from "./Components/Header";
+import Footer from "./Components/Footer";
+import Account from "./pages/Account";
+import Contact from "./pages/Contact";
+import About from "./pages/About";
+
+function Layout({ cartCount }) {
+  const location = useLocation();
+
+  const hideHeaderFooter = ["/login", "/signup"].includes(location.pathname);
+  return (
+    <>
+      {!hideHeaderFooter && <Header cartCount={cartCount} />}
+      <main> <Outlet /> </main> {!hideHeaderFooter && <Footer />}
+    </>
+  );
+}
+
+function App() {
+  const [cartItems, setCartItems] = React.useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("cartItems")) || [];
+    } catch {
+      return [];
+    }
+  });
+
+  return (
+    <Router>
+      <Routes>
+        <Route element={<Layout cartCount={cartItems.length} />}>
+          {/* Public Routes */}
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+
+          {/* Protected Routes */}
+          <Route path="/Home" element={<ProtectedRoute><Home /></ProtectedRoute> }/>
+          <Route path="/About" element={ <ProtectedRoute> <About /> </ProtectedRoute> } />
+          <Route path="/Account" element={ <ProtectedRoute> <Account /> </ProtectedRoute> } />
+          <Route path="/Cart" element={ <ProtectedRoute> <Cart /> </ProtectedRoute> } /> 
+          <Route path="/Contact" element={ <ProtectedRoute> <Contact /> </ProtectedRoute>} />
+
+          {/* Default redirect */}
+          <Route path="*" element={<Navigate to="/home" replace />} /> </Route>
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
